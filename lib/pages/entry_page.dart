@@ -1,13 +1,16 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:truth_or_dare/pages/welcome_page.dart';
 import 'package:truth_or_dare/shared/theme/colors.dart';
 import 'package:truth_or_dare/shared/theme/images.dart';
 
 const double _itcLogoBottomOffset = 70;
 const double _translationHidden = -300;
-const double _translationVisible = 0;
-const Duration _transitionAnimationDuration = Duration(milliseconds: 500);
+const double _translationVisible = -100;
+const double _translationQuestionMarkHidden = -600;
+const double _translationQuestionMarkVisible = -310;
+const Duration _transitionAnimationDuration = Duration(milliseconds: 700);
 
 class EntryPage extends StatefulWidget {
   @override
@@ -17,13 +20,16 @@ class EntryPage extends StatefulWidget {
 class _EntryPageState extends State<EntryPage> with SingleTickerProviderStateMixin {
   Timer _timer;
   Color _color = AppColors.blueBackground;
-  double _questionMarkRightOffset = _translationHidden;
+  double _questionMarkRightOffset = _translationQuestionMarkHidden;
   double _exclamationMarkLeftOffset = _translationHidden;
+  double _itcLogoOffset = _itcLogoBottomOffset;
 
   @override
   void initState() {
-    _timer = Timer.periodic(Duration(milliseconds: 1500), (timer) => _changeColor());
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) => _showQuestionMark());
+    _timer = Timer.periodic(_transitionAnimationDuration, (timer) {
+      _showQuestionMark();
+      _startChangeColorTimer();
+    });
     super.initState();
   }
 
@@ -41,13 +47,15 @@ class _EntryPageState extends State<EntryPage> with SingleTickerProviderStateMix
           AnimatedContainer(
             duration: _transitionAnimationDuration,
             color: _color,
+            onEnd: _runHideAllAnimation,
           ),
           AnimatedPositioned(
             top: 0,
             bottom: 0,
             right: _questionMarkRightOffset,
             duration: _transitionAnimationDuration,
-            curve: _exclamationMarkLeftOffset == _translationHidden ? Curves.bounceIn : Curves.bounceOut,
+            curve: _questionMarkRightOffset == _translationQuestionMarkHidden ? Curves.elasticIn : Curves.elasticOut,
+            onEnd: _animateExclamationMark,
             child: Image.asset(
               Images.questionMark,
               fit: BoxFit.fitHeight,
@@ -58,7 +66,7 @@ class _EntryPageState extends State<EntryPage> with SingleTickerProviderStateMix
             bottom: 0,
             left: _exclamationMarkLeftOffset,
             duration: _transitionAnimationDuration,
-            curve: Curves.bounceIn,
+            curve: _exclamationMarkLeftOffset == _translationHidden ? Curves.elasticIn : Curves.elasticOut,
             child: Image.asset(
               Images.exclamationMark,
               fit: BoxFit.fitHeight,
@@ -68,11 +76,14 @@ class _EntryPageState extends State<EntryPage> with SingleTickerProviderStateMix
             alignment: Alignment.center,
             child: Image.asset(Images.logoBlack),
           ),
-          Positioned(
-            bottom: _itcLogoBottomOffset,
+          AnimatedPositioned(
+            duration: _transitionAnimationDuration,
+            bottom: _itcLogoOffset,
             left: 0,
             right: 0,
+            curve: Curves.bounceOut,
             child: Image.asset(Images.itcLogo),
+            onEnd: _navigateToWelcomePage,
           ),
           Align(
             alignment: Alignment.bottomRight,
@@ -86,27 +97,72 @@ class _EntryPageState extends State<EntryPage> with SingleTickerProviderStateMix
     );
   }
 
+  void _startChangeColorTimer() {
+    _timer?.cancel();
+    _timer = Timer.periodic(Duration(milliseconds: 1500), (timer) => _changeColor());
+  }
+
   void _showQuestionMark() {
     setState(() {
-      _questionMarkRightOffset = _translationVisible;
+      _questionMarkRightOffset = _translationQuestionMarkVisible;
     });
   }
 
   void _changeColor() {
     setState(() {
       _color = AppColors.redBackground;
-      _questionMarkRightOffset = _translationHidden;
-      _exclamationMarkLeftOffset = _translationVisible;
+      _questionMarkRightOffset = _translationQuestionMarkHidden;
     });
+  }
+
+  void _animateExclamationMark() {
+    if (_questionMarkRightOffset == _translationQuestionMarkHidden) {
+      setState(() {
+        _exclamationMarkLeftOffset = _translationVisible;
+      });
+    }
   }
 
   void _reset() {
     setState(() {
       _color = AppColors.blueBackground;
-      _questionMarkRightOffset = _translationVisible;
+      _questionMarkRightOffset = _translationQuestionMarkHidden;
       _exclamationMarkLeftOffset = _translationHidden;
+      _itcLogoOffset = _itcLogoBottomOffset;
     });
     _timer?.cancel();
     _timer = Timer.periodic(_transitionAnimationDuration, (timer) => _changeColor());
+  }
+
+  void _runHideAllAnimation() {
+    _hideExclamationMark(onEnd: () => _hideItcLogo());
+  }
+
+  void _hideExclamationMark({VoidCallback onEnd}) {
+    _timer?.cancel();
+    _timer = Timer.periodic(_transitionAnimationDuration, (timer) {
+      setState(() {
+        _exclamationMarkLeftOffset = _translationHidden;
+      });
+      onEnd();
+    });
+  }
+
+  void _hideItcLogo() {
+    _timer?.cancel();
+    _timer = Timer.periodic(_transitionAnimationDuration, (timer) {
+      setState(() {
+        _itcLogoOffset = _translationHidden;
+      });
+    });
+  }
+
+  void _navigateToWelcomePage() {
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => WelcomePage(),
+        transitionDuration: Duration(seconds: 0),
+      ),
+    );
   }
 }
