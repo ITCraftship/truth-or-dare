@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:truth_or_dare/pages/welcome_page.dart';
 import 'package:truth_or_dare/shared/theme/colors.dart';
 import 'package:truth_or_dare/shared/theme/images.dart';
+import 'package:truth_or_dare/utils/no_animation_navigator_push.dart';
 
 const double _itcLogoBottomOffset = 70;
 const double _translationHidden = -300;
@@ -11,6 +12,7 @@ const double _translationVisible = -100;
 const double _translationQuestionMarkHidden = -600;
 const double _translationQuestionMarkVisible = -310;
 const Duration _transitionAnimationDuration = Duration(milliseconds: 700);
+const Duration _changeColorTimerDuration = Duration(milliseconds: 1500);
 
 class EntryPage extends StatefulWidget {
   @override
@@ -26,7 +28,7 @@ class _EntryPageState extends State<EntryPage> with SingleTickerProviderStateMix
 
   @override
   void initState() {
-    _timer = Timer.periodic(_transitionAnimationDuration, (timer) {
+    _timer = Timer(_transitionAnimationDuration, () {
       _showQuestionMark();
       _startChangeColorTimer();
     });
@@ -85,13 +87,6 @@ class _EntryPageState extends State<EntryPage> with SingleTickerProviderStateMix
             child: Image.asset(Images.itcLogo),
             onEnd: _navigateToWelcomePage,
           ),
-          Align(
-            alignment: Alignment.bottomRight,
-            child: FlatButton(
-              onPressed: () => _reset(),
-              child: Text("RESET BUTTON"),
-            ),
-          )
         ],
       ),
     );
@@ -99,7 +94,7 @@ class _EntryPageState extends State<EntryPage> with SingleTickerProviderStateMix
 
   void _startChangeColorTimer() {
     _timer?.cancel();
-    _timer = Timer.periodic(Duration(milliseconds: 1500), (timer) => _changeColor());
+    _timer = Timer.periodic(_changeColorTimerDuration, (timer) => _changeColor());
   }
 
   void _showQuestionMark() {
@@ -121,17 +116,6 @@ class _EntryPageState extends State<EntryPage> with SingleTickerProviderStateMix
         _exclamationMarkLeftOffset = _translationVisible;
       });
     }
-  }
-
-  void _reset() {
-    setState(() {
-      _color = AppColors.blueBackground;
-      _questionMarkRightOffset = _translationQuestionMarkHidden;
-      _exclamationMarkLeftOffset = _translationHidden;
-      _itcLogoOffset = _itcLogoBottomOffset;
-    });
-    _timer?.cancel();
-    _timer = Timer.periodic(_transitionAnimationDuration, (timer) => _changeColor());
   }
 
   void _runHideAllAnimation() {
@@ -158,11 +142,6 @@ class _EntryPageState extends State<EntryPage> with SingleTickerProviderStateMix
   }
 
   void _navigateToWelcomePage() {
-    Navigator.of(context).pushReplacement(
-      PageRouteBuilder(
-        pageBuilder: (_, __, ___) => WelcomePage(),
-        transitionDuration: Duration(seconds: 0),
-      ),
-    );
+    pushReplacementWithoutAnimation(context, WelcomePage());
   }
 }

@@ -1,12 +1,23 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:truth_or_dare/pages/selection_page.dart';
+import 'package:truth_or_dare/shared/theme/dims.dart';
+import 'package:truth_or_dare/shared/theme/typography.dart';
+import 'package:truth_or_dare/utils/no_animation_navigator_push.dart';
+import 'package:truth_or_dare/widgets/black_button.dart';
 
 import '../shared/theme/colors.dart';
 import '../shared/theme/images.dart';
 
 const Duration _transitionAnimationDuration = Duration(milliseconds: 500);
-const Duration _hiThereAnimationDuartion = Duration(seconds: 1);
+const Duration _hiThereAnimationDuration = Duration(seconds: 1);
 const double _translationHidden = -100;
 const double _buttonPadding = 30;
+const double _logoAfterAnimationTopAlignment = -0.7;
+const double _logoHorizontalAlignmentHidden = -5;
+const double _buttonBottomOffsetVisible = 32;
+const double _centerAlignment = 0;
+const double _hiThereAlignmentHidden = 4;
 
 class WelcomePage extends StatefulWidget {
   @override
@@ -14,9 +25,16 @@ class WelcomePage extends StatefulWidget {
 }
 
 class _WelcomePageState extends State<WelcomePage> {
-  double _topAlignment = 0.0;
+  double _topAlignment = _centerAlignment;
   double _buttonBottomOffset = _translationHidden;
-  double _textAlignment = 4;
+  double _hiThereAlignment = _hiThereAlignmentHidden;
+  double _logoHorizontalAlignment = _centerAlignment;
+  double _buttonLeft = _buttonPadding;
+  double _buttonRight = _buttonPadding;
+  bool _isHideAnimationRunning = false;
+  Curve _curve;
+  Duration _transitionDuration = _transitionAnimationDuration;
+  bool _isInitialAnimationRunning = true;
 
   @override
   void initState() {
@@ -31,28 +49,29 @@ class _WelcomePageState extends State<WelcomePage> {
         children: [
           Container(color: AppColors.redBackground),
           AnimatedAlign(
-            alignment: Alignment(0, _topAlignment),
-            duration: _transitionAnimationDuration,
-            curve: Curves.easeInOutBack,
+            alignment: Alignment(_logoHorizontalAlignment, _topAlignment),
+            duration: _transitionDuration,
+            curve: _curve ?? Curves.easeInOutBack,
             child: Image.asset(Images.logoBlack),
             onEnd: _animateButton,
           ),
           AnimatedAlign(
-            duration: _hiThereAnimationDuartion,
-            alignment: Alignment(_textAlignment, 0),
-            curve: Curves.elasticOut,
-            child: HiThere(),
+            duration: _hiThereAnimationDuration,
+            alignment: Alignment(_hiThereAlignment, _centerAlignment),
+            curve: _curve ?? Curves.elasticOut,
+            child: _HiThere(),
+            onEnd: _onHiThereAnimationEnd,
           ),
           AnimatedPositioned(
-            duration: _transitionAnimationDuration,
+            duration: _transitionDuration,
             bottom: _buttonBottomOffset,
-            left: _buttonPadding,
-            right: _buttonPadding,
-            curve: Curves.easeOutCubic,
+            left: _buttonLeft,
+            right: _buttonRight,
+            curve: _curve ?? Curves.easeOutCubic,
             onEnd: _animateText,
             child: BlackButton(
               text: "LET'S PLAY",
-              onTap: () {},
+              onTap: _animateHide,
             ),
           ),
         ],
@@ -61,51 +80,51 @@ class _WelcomePageState extends State<WelcomePage> {
   }
 
   void _animateLogo() {
+    if (_isHideAnimationRunning) return;
     setState(() {
-      _topAlignment = -0.7;
+      _topAlignment = _logoAfterAnimationTopAlignment;
     });
   }
 
   void _animateButton() {
+    if (_isHideAnimationRunning) return;
     setState(() {
-      _buttonBottomOffset = 32;
+      _buttonBottomOffset = _buttonBottomOffsetVisible;
     });
   }
 
   void _animateText() {
+    if (_isHideAnimationRunning) return;
     setState(() {
-      _textAlignment = 0;
+      _hiThereAlignment = _centerAlignment;
     });
   }
-}
 
-class BlackButton extends StatelessWidget {
-  final VoidCallback onTap;
-  final String text;
+  void _animateHide() {
+    if (_isInitialAnimationRunning) return;
+    _isHideAnimationRunning = true;
+    setState(() {
+      _curve = Curves.elasticIn;
+      _logoHorizontalAlignment = _logoHorizontalAlignmentHidden;
+      _buttonLeft = -MediaQuery.of(context).size.width;
+      _buttonRight = MediaQuery.of(context).size.width;
+      _hiThereAlignment = _hiThereAlignmentHidden;
+      _transitionDuration = _hiThereAnimationDuration;
+    });
+  }
 
-  const BlackButton({this.onTap, this.text});
+  void _onHiThereAnimationEnd() {
+    _isInitialAnimationRunning = false;
+    if (!_isHideAnimationRunning) return;
+    _navigateToSelectionPage();
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialButton(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      elevation: 0,
-      onPressed: onTap,
-      color: Colors.black,
-      padding: const EdgeInsets.symmetric(vertical: 24),
-      child: SizedBox(
-        width: double.infinity,
-        child: Text(
-          text,
-          style: TextStyle(color: Colors.white, fontSize: 24),
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
+  void _navigateToSelectionPage() {
+    pushWithoutAnimation(context, SelectionPage());
   }
 }
 
-class HiThere extends StatelessWidget {
+class _HiThere extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -113,13 +132,13 @@ class HiThere extends StatelessWidget {
       children: [
         Text(
           "Hi there!",
-          style: TextStyle(color: Colors.white, fontSize: 48, fontWeight: FontWeight.w700),
+          style: AppTypography.extraBold48,
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: Dim.d10),
         Text(
           "Are You ready\nfor a little spin?",
-          style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w500),
+          style: AppTypography.semiBold30,
           textAlign: TextAlign.center,
         ),
       ],

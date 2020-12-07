@@ -10,7 +10,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Baby Names',
+      title: 'Truth or Dare',
       home: EntryPage(),
       theme: ThemeData.dark(),
     );
