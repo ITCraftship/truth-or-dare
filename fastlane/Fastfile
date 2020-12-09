@@ -1,0 +1,121 @@
+default_platform(:ios)
+
+RUNNING_ON_CI = ENV['CI'].to_s.downcase == 'true'
+APPLE_ID = ENV['TOD_APPLE_ID'].to_s
+# MATCH_PASSWORD = ENV['ITC_MATCH_PASSPHRASE'].to_s;
+
+def common_build_actions()
+  Dir.chdir ".." do
+    if (RUNNING_ON_CI == false) then
+      sh("flutter", "clean")
+    end
+    sh("flutter", "pub", "get")
+    sh("flutter", "analyze")
+  end
+end
+
+platform :ios do
+  lane :setup_keychain do
+    create_keychain(
+      name: "itcKeychain",
+      default_keychain: false,
+      password: 'secretPass',
+      unlock: true,
+      timeout: 3600,
+      lock_when_sleeps: true
+    )
+  end
+
+  desc "Lane to add a new device to provisioning profiles
+If you want to add a new device run:
+
+```
+fastlane add_device
+```
+
+After the new device was added you can refresh your provisioning profile by running:
+```
+fastlane renew_profile
+```
+  "
+  lane :add_device do
+    device_name = prompt(text: 'Enter the device name: ')
+    device_udid = prompt(text: 'Enter the device UDID: ')
+    device_hash = {}
+    device_hash[device_name] = device_udid
+    register_devices(
+      devices: device_hash
+    )
+  end
+
+  lane :refresh_appstore_profiles do
+    match(app_identifier: 'com.itcraftship.truth-or-dare', type: 'appstore', readonly: false, force: true, force_for_new_devices: true, keychain_password: 'secretPass')
+  end
+
+  lane :refresh_development_profiles do
+    match(app_identifier: 'com.itcraftship.truth-or-dare', type: 'development', readonly: false, force: true, force_for_new_devices: true, keychain_password: 'secretPass')
+  end
+
+  lane :refresh_all_profiles do
+    refresh_development_profiles
+    refresh_appstore_profiles
+  end
+
+  private_lane :remove_old_profiles do
+    sh('fastlane sigh manage -p "com.itcraftship.truth-or-dare" --force')
+  end
+
+  desc 'Test'
+  lane :test do
+    common_build_actions()
+  end
+
+  desc 'Builds an appstore version of the application and distributes to AppStore Connect'
+  lane :deploy do
+    common_build_actions()
+    Dir.chdir ".." do
+      sh("flutter", "build", "ios", "--release", "--no-codesign")
+    end
+
+    # first remove old and expired provisioning profiles (workaround: https://github.com/fastlane/fastlane/issues/3738)
+    remove_old_profiles
+    match(app_identifier: 'com.itcraftship.truth-or-dare', type: 'appstore', keychain_password: 'secretPass', readonly: RUNNING_ON_CI)
+
+    build_app(
+      scheme: "Runner",
+      workspace: "ios/Runner.xcworkspace",
+      configuration: "Release",
+      export_method: "app-store"
+    )
+
+    pilot(
+      username: APPLE_ID,
+      team_id: '120815547',
+      skip_submission: true,
+      skip_waiting_for_build_processing: true,
+      apple_id: "1544053352"
+    )
+  end
+end
+
+platform :android do
+  desc 'Builds and signs a production release to distribute in Google Play Store'
+  lane :deploy do
+    BUILD_NUMBER = ENV['BUILD_NUMBER'].to_s
+    common_build_actions()
+    Dir.chdir ".." do
+      sh("flutter", "build", "appbundle", "--build-number=#{BUILD_NUMBER}")
+    end
+
+    supply(
+      aab: "build/app/outputs/bundle/release/app-release.aab",
+      json_key: 'google_play.json',
+      release_status: 'draft',
+      track: 'internal',
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      package_name: 'com.itcraftship.truth_or_dare'
+    )
+  end
+end

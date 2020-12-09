@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:truth_or_dare/domain/truth_or_dare.dart';
+import 'package:truth_or_dare/pages/truth_or_dare_ui_extension.dart';
 import 'package:truth_or_dare/domain/truth_or_dare_data_source.dart';
 import 'package:truth_or_dare/shared/theme/dims.dart';
 import 'package:truth_or_dare/shared/theme/images.dart';
@@ -26,7 +27,7 @@ const double _questionTextWidthFactor = 2 / 3;
 
 class TruthOrDarePage extends StatefulWidget {
   final TruthOrDare truthOrDare;
-  final TruthOrDareDataSource truthOrDareDataSource;
+  final TruthOrDareGenerator truthOrDareDataSource;
 
   const TruthOrDarePage(this.truthOrDare, this.truthOrDareDataSource);
 
@@ -197,6 +198,6 @@ class _TruthOrDarePageState extends State<TruthOrDarePage> {
   Color _getColor() => widget.truthOrDare == TruthOrDare.truth ? AppColors.blueBackground : AppColors.redBackground;
 
   String _getQuestion() => widget.truthOrDare == TruthOrDare.truth
-      ? widget.truthOrDareDataSource.getTruthQuestion()
-      : widget.truthOrDareDataSource.getDareQuestion();
+      ? widget.truthOrDareDataSource.getQuestion()
+      : widget.truthOrDareDataSource.getDare();
 }

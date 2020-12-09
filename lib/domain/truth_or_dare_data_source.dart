@@ -1,13 +1,13 @@
 import 'dart:math';
 
-abstract class TruthOrDareDataSource {
-  String getTruthQuestion();
-  String getDareQuestion();
+abstract class TruthOrDareGenerator {
+  String getQuestion();
+  String getDare();
 }
 
-class TruthOrDareLocalDataSource implements TruthOrDareDataSource {
+class TruthOrDareLocalGenerator implements TruthOrDareGenerator {
   final Random _random = Random();
-  final _truthQuestions = [
+  final _questions = [
     "What's your biggest fear?",
     "What's the worst thing you've ever done?",
     "What's the most trouble you've been in?",
@@ -15,7 +15,7 @@ class TruthOrDareLocalDataSource implements TruthOrDareDataSource {
     "Have you ever had a run in with the law?"
   ];
 
-  final _dareQuestions = [
+  final _dares = [
     "Eat a raw piece of garlic",
     "Do 100 squats",
     "Keep three ice cubes in your mouth until they melt",
@@ -26,22 +26,22 @@ class TruthOrDareLocalDataSource implements TruthOrDareDataSource {
   int _lastPickedQuestionNumber;
 
   @override
-  String getTruthQuestion() {
-    int randomNumber = _random.nextInt(_truthQuestions.length);
+  String getQuestion() {
+    int randomNumber = _random.nextInt(_questions.length);
     while (randomNumber == _lastPickedQuestionNumber) {
-      randomNumber = _random.nextInt(_truthQuestions.length);
+      randomNumber = _random.nextInt(_questions.length);
     }
     _lastPickedQuestionNumber = randomNumber;
-    return _truthQuestions[randomNumber];
+    return _questions[randomNumber];
   }
 
   @override
-  String getDareQuestion() {
-    int randomNumber = _random.nextInt(_dareQuestions.length);
+  String getDare() {
+    int randomNumber = _random.nextInt(_dares.length);
     while (randomNumber == _lastPickedQuestionNumber) {
-      randomNumber = _random.nextInt(_dareQuestions.length);
+      randomNumber = _random.nextInt(_dares.length);
     }
     _lastPickedQuestionNumber = randomNumber;
-    return _dareQuestions[randomNumber];
+    return _dares[randomNumber];
   }
 }

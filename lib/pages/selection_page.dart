@@ -133,7 +133,7 @@ class _SelectionPageState extends State<SelectionPage> {
   void _navigateToTruthOrDarePage(TruthOrDare truthOrDare) {
     if (_didPushPage) return;
     _didPushPage = true;
-    pushWithoutAnimation(context, TruthOrDarePage(truthOrDare, TruthOrDareLocalDataSource())).then((_) {
+    pushWithoutAnimation(context, TruthOrDarePage(truthOrDare, TruthOrDareLocalGenerator())).then((_) {
       _didPushPage = false;
       _revertAnimations();
     });
