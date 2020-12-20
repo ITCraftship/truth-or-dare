@@ -14,8 +14,8 @@ keychain_password "secretPass"
 # Remove the # in the beginning of the line to enable the other options
 
 # Command used to generate the certificates and profiles:
-# MATCH_PASSWORD=$ITC_MATCH_PASSPHRASE bundle exec fastlane match adhoc
-# MATCH_PASSWORD=$ITC_MATCH_PASSPHRASE bundle exec fastlane match development
-# MATCH_PASSWORD=$ITC_MATCH_PASSPHRASE bundle exec fastlane match appstore
+# MATCH_PASSWORD=$TOD_MATCH_PASSPHRASE bundle exec fastlane match adhoc
+# MATCH_PASSWORD=$TOD_MATCH_PASSPHRASE bundle exec fastlane match development
+# MATCH_PASSWORD=$TOD_MATCH_PASSPHRASE bundle exec fastlane match appstore
 
 # The docs are available on https://docs.fastlane.tools/actions/match

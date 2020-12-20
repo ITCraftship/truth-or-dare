@@ -2,7 +2,7 @@ default_platform(:ios)
 
 RUNNING_ON_CI = ENV['CI'].to_s.downcase == 'true'
 APPLE_ID = ENV['TOD_APPLE_ID'].to_s
-# MATCH_PASSWORD = ENV['ITC_MATCH_PASSPHRASE'].to_s;
+# MATCH_PASSWORD = ENV['TOD_MATCH_PASSPHRASE'].to_s;
 
 def common_build_actions()
   Dir.chdir ".." do
