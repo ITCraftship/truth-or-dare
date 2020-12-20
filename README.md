@@ -1,4 +1,4 @@
-# ToD Game [![Codemagic build status](https://api.codemagic.io/apps/5fc783baf7698ed212bf84b9/5fc783baf7698ed212bf84b8/status_badge.svg)](https://codemagic.io/apps/<app-id>/<workflow-id>/latest_build)
+# ToD Game [![Codemagic build status](https://api.codemagic.io/apps/5fc783baf7698ed212bf84b9/5fc783baf7698ed212bf84b8/status_badge.svg)](https://codemagic.io/apps/5fc783baf7698ed212bf84b9/5fc783baf7698ed212bf84b8/latest_build)
 
 A mobile Truth or Dare game for iOS and Android application built using Flutter with CI/CD running on [Codemagic](https://codemagic.io).
 
@@ -73,7 +73,7 @@ Remember to run this after setting these variables for your current terminal ins
 source ~/.zshrc
 ```
 
-## Setup iOS environment
+## Setup iOS builds
 
 ### Create the app in AppStore Connect
 
@@ -121,3 +121,54 @@ Now you should be all set to deliver your app to TestFlight
 ```
 sh ci/build_ios_qa.sh
 ```
+
+## Setup Android builds
+
+### Create the app in Google Play Console
+
+Visit the [Google Play Console](https://play.google.com/console/) and create your new application. Make sure you opt-in for Google CodeSigning in Setup > App signing submenu item.
+
+### Generate a key and keystore
+
+1.  Use the following command to initiate keytore and certificate generation:  
+    `keytool -genkey -v -keystore itc-release.keystore -keyalg RSA -keysize 2048 -validity 10000 -alias itc`
+1.  Backup your `itc-release.keystore` file and store passwords safely. If you loose this, then there's a painful process that includes contacting Google's support (see: [Create a new upload key](https://support.google.com/googleplay/android-developer/answer/7384423)).
+
+You can call the keystore whatever you like instead of `itc-release.keystore`, but you'll have to use that new name across all other placess, .i.e.:
+
+- `android/key.properties`
+- `codemagic.yaml`
+
+#### Create a key.properties file
+
+Create a `android/key.properties` file with the keystore file name password set in the previous step:
+
+```
+storePassword=thePasswordFromBefore
+keyPassword=thePasswordFromBefore
+keyAlias=itc
+storeFile=../../itc-release.keystore
+```
+
+### Generate a google_play.json for upload
+
+As Google Play account owner follow these instructions to generate the JSON key for API upload to Google Play:
+https://developers.google.com/android-publisher/getting_started
+
+Add this `google_play.json` file to the root of your project. This will allow uploading to the Google Play store.
+
+## Make a release to Google Play
+
+Run:
+
+```bash
+sh sh ci/build_android_qa.sh
+```
+
+## Setup the builds with Codemagic
+
+TODO: add the link to the tutorial for the whole codemagic setup
+
+## License
+
+Released under MIT License. See [LICENSE](LICENSE) for more info.
