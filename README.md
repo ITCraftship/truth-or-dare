@@ -1,6 +1,6 @@
-# truth_or_dare
+# ToD Game [![Codemagic build status](https://api.codemagic.io/apps/5fc783baf7698ed212bf84b9/5fc783baf7698ed212bf84b8/status_badge.svg)](https://codemagic.io/apps/<app-id>/<workflow-id>/latest_build)
 
-Truth or dare application.
+A mobile Truth or Dare game for iOS and Android application built using Flutter with CI/CD running on [Codemagic](https://codemagic.io).
 
 ## Getting Started
 
