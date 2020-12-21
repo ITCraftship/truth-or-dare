@@ -2,6 +2,13 @@
 
 A mobile Truth or Dare game for iOS and Android application built using Flutter with CI/CD running on [Codemagic](https://codemagic.io).
 
+![Demo](assets/images/tod_demo.gif)
+
+<div>
+  <a href='#' target='_blank'><img alt='Get it on Google Play' src='assets/images/google_play.png' height='48px'/></a>
+  <a href='#' target='_blank'><img alt='Get it on the App Store' src='assets/images/app_store.png' height='48px'/></a>
+</div>
+
 ## Quick Start
 
 ### Prerequisites
