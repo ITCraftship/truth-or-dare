@@ -19,10 +19,10 @@ workflows:
       cache_paths: []
     triggering:
       events:
-        # publish only tagged commits to master:
+        # publish only tagged commits to main:
         - tag
       branch_patterns:
-        - pattern: master
+        - pattern: main
           include: true
           source: false
     scripts:
@@ -62,10 +62,10 @@ workflows:
       cache_paths: []
     triggering:
       events:
-        # test each PR to master:
+        # test each PR to main:
         - pull_request
       branch_patterns:
-        - pattern: master
+        - pattern: main
           include: true
           source: false
     scripts:
