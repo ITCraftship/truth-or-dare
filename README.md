@@ -1,4 +1,4 @@
-# ToD Game [![Codemagic build status](https://api.codemagic.io/apps/5fc783baf7698ed212bf84b9/5fc783baf7698ed212bf84b8/status_badge.svg)](https://codemagic.io/apps/5fc783baf7698ed212bf84b9/5fc783baf7698ed212bf84b8/latest_build)
+# ToD Game [![Codemagic build status](https://api.codemagic.io/apps/5fc783baf7698ed212bf84b9/publish-qa/status_badge.svg)](https://codemagic.io/apps/5fc783baf7698ed212bf84b9/5fc783baf7698ed212bf84b8/latest_build)
 
 A mobile Truth or Dare game for iOS and Android application built using Flutter with CI/CD running on [Codemagic](https://codemagic.io).
 
