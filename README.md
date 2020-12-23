@@ -5,8 +5,8 @@ A mobile Truth or Dare game for iOS and Android application built using Flutter 
 ![Demo](assets/images/tod_demo.gif)
 
 <div>
-  <a href='#' target='_blank'><img alt='Get it on Google Play' src='assets/images/google_play.png' height='48px'/></a>
-  <a href='#' target='_blank'><img alt='Get it on the App Store' src='assets/images/app_store.png' height='48px'/></a>
+  <!-- TODO: <a href='#' target='_blank'><img alt='Get it on Google Play' src='assets/images/google_play.png' height='48px'/></a> -->
+  <a href='https://apps.apple.com/us/app/tod-game/id1544053352' target='_blank'><img alt='Get it on the App Store' src='assets/images/app_store.png' height='48px'/></a>
 </div>
 
 ## Quick Start
