@@ -19,6 +19,10 @@ We are assuming either `zsh` or `bash` for your default shell. If you're using s
 
 Later whenever we mention that you should set an environment variable, besides of running the `export` command in your current terminal instance, make sure to add this `export` to your shell profile (ex. `.zshrc`, `.bashrc`, `.bash_profile` ).
 
+### Flutter & Xcode version
+
+At the time of writing this app, Flutter was at version `1.22.5` and XCode at `12.3`. Codemagic allows setting those versions in the YAML configuration, so nothing should change for your CI. However, on your local machine you may experience issues building the app if there were significant breaking changes in Flutter or XCode versions.
+
 # Forking the repository
 
 To copy the repository to your account, press the **Fork** button in the top right corner of the repository. After a while it should be visible as one of yours repositories.
@@ -238,6 +242,8 @@ Now you should be all set to release the app from your local machine. Just run t
 
 If all went according to plan, then you'll have a shiny new build uploaded to TestFlight 🚀
 
+# Android Setup
+
 ## Keystore
 
 In order to sign your Android application you will need to generate a **keystore** file. Run the following command:
@@ -250,12 +256,25 @@ After that you also need to create a **key.properties** file inside `<app dir>/a
 storePassword=<password from previous step>
 keyPassword=<password from previous step>
 keyAlias=<key alias from previous step>
-storeFile=<location of the key store from previous step>
+storeFile=<location of the key store from previous step relative to android/app directory>
 ```
 
-Make the keystore path somewhere inside `<app dir>/android` and update the `key.properties` file correctly.
+Make the keystore path somewhere inside `<app dir>/android` and update the `android/key.properties` file correctly.
 
-**Warning**: Remember not to check those files into public source control!
+Here's an example command:
+
+    keytool -genkey -v -keystore android/app/itc-release.keystore -keyalg RSA -keysize 2048 -validity 10000 -alias tod
+
+And the contents of the `key.properties` file:
+
+```
+storePassword=mySuperSecretP@ss
+keyPassword=mySuperSecretP@ss
+keyAlias=tod
+storeFile=itc-release.keystore
+```
+
+> **WARNING**: Remember not to check those files into a public source control!
 
 ## Create application inside Google Play
 
@@ -325,7 +344,7 @@ Select list names you want or create one if there are none existing. Press `Save
 
 Now we should upload a new build manually, but first we need to acquire GooglePlay.json file.
 
-## Google play json
+## Google Play JSON
 
 Again, go to `https://play.google.com/console` and log in. After you entered your account, go to **Settings -> API access**
 
@@ -389,7 +408,11 @@ Finally, this is what you should see:
 
 ## First Upload
 
-Put the `google_play.json` file inside your project. Now, we should be good to go and build our first .aab. Go to terminal, change directory to your project and run:
+Put the `google_play.json` file inside your project root directory.
+
+> **WARNING**: Remember not to check in this file to a public code repository.
+
+Now, we should be good to go and build our first .aab. Go to terminal, change directory to your project and run:
 
     flutter build appbundle
 
