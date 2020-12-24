@@ -127,3 +127,6 @@ app.*.symbols
 
 # Fastlane
 **/report.xml
+
+# Service Account Key
+google_play.json
