@@ -37,8 +37,10 @@ Before you can build and run the project locally, you'll have to follow the READ
 
 ### Prerequisites
 
-- [Install Ruby Version Manager](https://rvm.io/) – see below for details
-- [Install flutter](https://flutter.dev/docs/get-started/install)
+- [Install Ruby Version Manager](https://rvm.io/) – not required, but recommended (see below for details)
+- [Install flutter](https://flutter.dev/docs/get-started/install) and dependencies, including:
+  - Xcode
+  - Cocoapods (when you chose to use RVM, then make sure to install Cocoapods again for the current ruby environment – i.e. `Ruby 2.4.1`)
 - [Install dart](https://dart.dev/)
   - MAC OS (assumes you have [Homebrew](https://brew.sh/))
   ```bash
@@ -144,6 +146,20 @@ As an example you could call this:
 
 after that new iOS application should be visible in App Store Connect with the Bundle ID taken from the Appfile.
 
+When you have the app created, you should go to App Store Connect and get the Apple ID for your app from the App Information:
+
+![Apple ID for the app](images/app_apple_id.png)
+
+You should copy this Apple ID and set it in the Fastfile for the pilot action. See the code below for reference:
+
+    pilot(
+      username: APPLE_ID,
+      team_id: '120815547',
+      skip_submission: true,
+      skip_waiting_for_build_processing: true,
+      apple_id: "1546377180" # this is where you set it
+    )
+
 ## Match
 
 We want to use a tool called match which will be responsible for managing application code signing certificates and provisioning profiles. This is an amazing way to keep code signing in sync in your entire team/company. You can read more about this approach in the [Code Signing Guide](https://codesigning.guide/).
@@ -210,7 +226,17 @@ In order to set up testers, go to `https://appstoreconnect.apple.com`, log in an
 
 Press the plus sign next to Testers and check whoever you want to test your application.
 
-# Android setup
+## Release the app from your local machine
+
+Before you build your app for the first time, make sure to install all pods using:
+
+    find . -name "Podfile" -execdir pod install \;
+
+Now you should be all set to release the app from your local machine. Just run the following command:
+
+    sh ci/build_ios_qa.sh
+
+If all went according to plan, then you'll have a shiny new build uploaded to TestFlight 🚀
 
 ## Keystore
 
