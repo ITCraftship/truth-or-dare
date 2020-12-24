@@ -114,6 +114,13 @@ Replace all occurrences of `com.itcraftship.truth-or-dare` with the bundle ident
 - For Android Studio You can use `⌘⇧R` on Mac and `Ctrl+Shift+R` on Windows
 - For Visual Studio Code You can use `⌘⇧F` on Mac and `Ctrl+Shift+F` on Windows, then you need to click the arrow in the top left corner to enable replacing
 
+The files that should be affected are:
+
+    fastlane/Appfile
+    fastlane/Fastfile
+    fastlane/Matchfile
+    ios/Runner.xcodeproj/project.pbxproj
+
 It will also replace the value in the tutorial Markdown, but you don't need to worry about it 😉
 
 ## Team ID
@@ -276,6 +283,28 @@ storeFile=itc-release.keystore
 
 > **WARNING**: Remember not to check those files into a public source control!
 
+## Rename your app identifier for Android
+
+First thing you need to do in order to publish your app to App Store is to change the **bundle identifier** to something unique.
+
+To make it quick we will use a **find and replace all** function.
+
+Replace all occurrences of `com.itcraftship.truth_or_dare` with the bundle identifier of your choice.
+
+- For Android Studio You can use `⌘⇧R` on Mac and `Ctrl+Shift+R` on Windows
+- For Visual Studio Code You can use `⌘⇧F` on Mac and `Ctrl+Shift+F` on Windows, then you need to click the arrow in the top left corner to enable replacing
+
+The files that should be affected are:
+
+    android/app/build.gradle
+    android/app/src/debug/AndroidManifest.xml
+    android/app/src/main/AndroidManifest.xml
+    android/app/src/main/kotlin/com/itcraftship/truth_or_dare/MainActivity.kt
+    android/app/src/profile/AndroidManifest.xml
+    fastlane/Fastfile
+
+Again this will replace the value in the tutorial Markdown.
+
 ## Create application inside Google Play
 
 Go to `https://play.google.com/console` and select `All apps` tab. In the top right corner, press `Create app button`.
@@ -428,7 +457,18 @@ Press `Create new release`, click `Continue` in the middle of the screen and the
 
 After that, press `Save`, then `Review Release` and finally `Rollout`.
 
+##
+
+Now you should be all set to create a local release to Google Play using fastlane.
+To do this run the following command:
+
+    BUILD_NUMBER=0 sh ci/build_android_qa.sh
+
+The `$BUILD_NUMBER` environment variable needs to be a unique value or Google Play will reject the upload. So the next time you run this command you'll need to increment the build. Also remember, that Codemagic will set a value for this variable for each build. If you use a specific number locally locally, a build with the same number will fail on Codemagic.
+
 # Codemagic setup
+
+## Configuring the project
 
 After you log in to your Codemagic account, go to `Teams` tab:
 
@@ -466,6 +506,53 @@ Now, this part is kind of time consuming. You now need to paste every environmen
 
     TOD_APPLE_ID:  Encrypted(Z0FBQUFBQmYzZ2dSVkIxQzRZYXlCS2FaMXQ1bS0waFNialQwX0NfZWxIUlNYOE9kWG5heWdPRXlIZzB3ZGJOS3dFa2dtbzNiZGNScWIxZFlRVjhJZXV4MUdnNExBam9tTy1JTzVEd1hYaWY5WEk2dDBKTFVCdkk9)
 
-After you make changes don't forget to push them to your version control system.
+Here are all the values you'll need to set for the `publish-qa` workflow:
+
+    TOD_MATCH_REPO: Encrypted(...)
+    TOD_APPLE_ID: Encrypted(...)
+    TOD_APP_SPECIFIC_PASSWORD: Encrypted(...)
+    TOD_MATCH_PASSPHRASE: Encrypted(...)
+    ANDROID_KEYSTORE: Encrypted(...)
+    MATCH_SSH_KEY: Encrypted(...)
+    ANDROID_KEY_PROPERTIES: Encrypted(...)
+    GOOGLE_PLAY_JSON: Encrypted(...)
+
+After you make changes don't forget to commit and push them to your version control system.
+
+## Bumping the version
+
+Before you trigger a new build, make sure you bump the version in the `pubspec.yaml` file. You should increase either `major.minor.patch` version or the `-X` pre-release suffix.
+
+## Updating the recipients for build notifications
+
+Make sure to update the `recipients` section in the `codemagic.yaml` file to use your own email address to get notified about build success or failure.
+
+## Running the build on Codemagic
 
 When you're done, press `Start new build` button, on the bottom of that window press `Select workflow from codemagic.yaml`, select the branch you are using and select `publish-qa` workflow. Press `Start new build` and wait for your build to complete. If everything goes well, new builds should be uploaded to App Store Connect and GooglePlay.
+
+## Triggering builds
+
+The `codemagic.yaml` configuration we prepared triggers builds on two events:
+
+1. When you make a PR to the `main` branch, the `pr` workflow will be triggered
+2. When you tag a commit on the `main` branch and push it to the remote, the `publish-qa`
+
+This is helpful when you want to have proper continuous delivery implemented for your mobile app.
+
+# Using this for an existing Flutter app
+
+When you setup your new app you can use this tutorial and repository README as your guide to create a similar boilerplate for your own organization. Most importantly for a new flutter project you can copy:
+
+- `codemagic.yaml`
+- the configuration under the `fastlane` directory
+- the scripts under the `ci` directory and then
+- `.gitignore`
+
+then follow the tutorial and you should be set as well.
+
+# Final words
+
+We tried to make this tutorial into a comprehensive guide that will cut down the time you need to set up your build automation for a Flutter mobile application using Codemagic and Fastlane. When running through the steps, the whole process took us less than 2h for completely new app identifiers. We hope that it will also help you reduce same friction in your projects. If anything isn't clear or you noticed an error in this tutorial, we'll appreciate raising an issue in the repository or a PR submission.
+
+Thanks for reading and happy building! 🛠
