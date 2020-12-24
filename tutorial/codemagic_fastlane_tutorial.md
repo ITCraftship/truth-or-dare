@@ -7,9 +7,17 @@ The steps will allow you to customize your app name, so modifying this for your 
 
 Good luck releasing your apps!
 
-## DISCLAIMER
+## DISCLAIMERS
+
+### Operating System
 
 Since building apps for iOS relies on having a computer with macOS, we'll assume that this is the environment you have. If you're running on a Linux-based OS many of the steps will look the same. On Windows, however, I recommend that you use the [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/about) to follow this guide.
+
+### Shell
+
+We are assuming either `zsh` or `bash` for your default shell. If you're using something else (ex. `fish`) you will have to use appropriate syntax for some things - like setting environment variables.
+
+Later whenever we mention that you should set an environment variable, besides of running the `export` command in your current terminal instance, make sure to add this `export` to your shell profile (ex. `.zshrc`, `.bashrc`, `.bash_profile` ).
 
 # Forking the repository
 
@@ -81,7 +89,7 @@ To see if everything is working properly and the app is building.
 
 ## Fastlane
 
-To make publishing process easier and faster, we will use Fastlane. It is already included inside of the **gemfile**, so all you need to do is run:
+To make publishing process easier and faster, we will use Fastlane. It is already included inside of the **Gemfile**, so all you need to do is run:
 
     bundle install
 
@@ -100,6 +108,8 @@ Replace all occurrences of `com.itcraftship.truth-or-dare` with the bundle ident
 - For Android Studio You can use `⌘⇧R` on Mac and `Ctrl+Shift+R` on Windows
 - For Visual Studio Code You can use `⌘⇧F` on Mac and `Ctrl+Shift+F` on Windows, then you need to click the arrow in the top left corner to enable replacing
 
+It will also replace the value in the tutorial Markdown, but you don't need to worry about it 😉
+
 ## Team ID
 
 Next, You need to update the Team ID inside **Appfile**. To access it, go to `https://developer.apple.com/account`, log in to your account and click **Membership** tab. Team ID should be the 3rd row from the top.
@@ -107,41 +117,6 @@ Next, You need to update the Team ID inside **Appfile**. To access it, go to `ht
 ![enter image description here](https://lh3.googleusercontent.com/pw/ACtC-3dQYtIQ62Yxn_uLZ7g0DviK3M07njzmwj5bkGEenymct5on7YdO8i9u5TxSvrYCAWomw4bd3Ihl02jc21NcTEipspUtmtXfrEkhiXUWOJuhsi5Fue1iq_CykIvxkVKph4hsB9xZQna6i6lL0ByKqjk=w2176-h980-no?authuser=1)
 
 Now, go to **Appfile** and replace the **team_id** value with your own.
-
-## Create application with Fastlane
-
-Now we would like to create the app inside App Store Connect. In order to do that, run the following command:
-
-    bundle exec fastlane produce --app_name <application name of your choice> --language <primary language e.g. English>
-
-after that new Identifier should be visible in developer portal and new app in App Store Connect.
-
-## Match
-
-We want to use a tool called match which will be responsible for managing application code signing certificates and provisioning profiles.
-
-Firstly, create a private repository (e.x on GitHub) where certificates will be stored.
-
-Secondly, add the URL of the repository to environment variables:
-
-    export TOD_MATCH_REPO=<repository url>
-
-We do it because later Match will use it during app signing.
-
-If you want to include additional layer of security and add a password to your certificates repository, you will be asked for it the first time you run Match. After it is done You should of course add it also to your environment variables :
-
-    export TOD_MATCH_PASSPHRASE=[the password to encrypt/decrypt your match repository]
-
-Later, when you run any match commands, you will need to switch this password to a different environment variable: `MATCH_PASSWORD`.
-Here is an example command:
-
-    MATCH_PASSWORD=$TOD_MATCH_PASSPHRASE bundle exec fastlane match development
-
-By doing this Match will not ask you for the password each time.
-
-Now, to create the certificates run the following command:
-
-    bundle exec fastlane refresh_all_profiles
 
 ## Apple ID
 
@@ -157,9 +132,63 @@ As before, you should add it to environment variables:
 
     export TOD_APP_SPECIFIC_PASSWORD=<your app specific password for CI/CD>
 
+## Create application with Fastlane
+
+Now we would like to create the app inside App Store Connect. In order to do that, run the following command:
+
+    bundle exec fastlane produce --app_name <application name of your choice> --language <primary language e.g. en-US>
+
+As an example you could call this:
+
+    bundle exec fastlane produce --app_name "Tod Tutorial" --language en-US
+
+after that new iOS application should be visible in App Store Connect with the Bundle ID taken from the Appfile.
+
+## Match
+
+We want to use a tool called match which will be responsible for managing application code signing certificates and provisioning profiles. This is an amazing way to keep code signing in sync in your entire team/company. You can read more about this approach in the [Code Signing Guide](https://codesigning.guide/).
+
+Firstly, create a private repository (e.x on GitHub) where certificates will be stored.
+
+Secondly, add the SSH URL of the repository to environment variables:
+
+    export TOD_MATCH_REPO=<repository url>
+
+> NOTE: To use Match on Codemagic later on, you will need SSH access from the build machine, so the best practice is to use SSH locally as well - both for the app repository as well as for the certificates repository.
+
+We set this environment variable because later Match will use it during code signing – see the [Matchfile](../fastlane/Matchfile).
+
+If you want to include additional layer of security and add a password to your certificates repository (**RECOMMENDED**), you will be asked for it the first time you run Match. After it is done You should of course add it also to your environment variables:
+
+    export TOD_MATCH_PASSPHRASE=[the password to encrypt/decrypt your match repository]
+
+Later, when you run any match commands, you will need to switch this password to a different environment variable: `MATCH_PASSWORD` that Fastlane uses by default.
+Here is an example command:
+
+    MATCH_PASSWORD=$TOD_MATCH_PASSPHRASE bundle exec fastlane match development
+
+By doing this Match will not ask you for the password each time.
+The trick of prefixing your environment variables will come very handy when you set up your local environment to build and sign several different applications. This is why we add the `TOD_` prefix for the case of this Truth or Dare repository. Other projects may have different prefixes like `TETRIS_`, `PRO_` or whatever you decide to use as abbreviation for your project.
+
+After you have set these environment variables, you should set up your new Keychain. This is another trick that will come handy when codesigning different projects. It's also very convenient to create your own keychain on different build servers. That way you specify your own keychain password and make unlocking and picking the right keychain easier. The password isn't really sensitive (unless you leave your computer unlocked), but you might want to move it to environment variables for added security. Having a separate keychain for your project will also help you keep it clean and don't pollute your Login keychain with codesigning certificates and profiles. To create your keychain use this command:
+
+    bundle exec fastlane ios setup_keychain
+
+By default the keychain will be created in:
+
+    /Users/<username>/Library/Keychains/itcKeychain-db
+
+In the future you may want to replace the `itc` prefix to something related to your project or company, but you might just leave it like this to keep us warm in your memory 😉
+
+Now, to create the certificates run the following command:
+
+    bundle exec fastlane refresh_all_profiles
+
+> NOTE: When you have no provisioning profiles for your app, this command will create new ones for you. You will also want to use this command whenever you add a new device to your development or ad-hoc provisioning profiles. We added a helpful command in the `Fastfile` for this specific purpose: `bundle exec fastlane add_device`.
+
 ## Match SSH Key
 
-The most secure way to connect to git repository is by using SSH keys. When you start the deploy build on Codemagic, it will try to download signing certificates and provisioning profiles using Match. When you try it for the first time however, it will give you an **unauthorized** error. This is because your certificates repository is private. In order to connect successfully, Codemagic will need to have an SSH key which it can use to connect to the repository. It is consider unsafe to share your private key with external CI tools, so we will create a new one, just for Codemagic to use.
+The most secure way to connect to git repository is by using SSH keys. When you start the deploy build on Codemagic, it will try to download signing certificates and provisioning profiles using Match. When you try it for the first time however, it will give you an **unauthorized** error. This is because your certificates repository is private. In order to connect successfully, Codemagic will need to have an SSH key which it can use to connect to the repository. It is considered unsafe to share your private key with external CI tools, so we will create a new one, just for Codemagic to use.
 
 To generate an SSH key, run:
 
@@ -167,13 +196,13 @@ To generate an SSH key, run:
 
 You can name the file however you want.
 
-**Skip** the password prompt (press enter when you are asked for it).
+Be sure to **Skip** the password prompt (press enter when you are asked for it). If you set a password for your SSH key, then Codemagic will not be able to load this key when setting up the build agent. Don't worry, you will encrypt this SSH key later using the awesome environment variable encryption feature in Codemagic.
 
-Now add the key to the account that you created a private certificates repository with: [Here](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/adding-a-new-ssh-key-to-your-github-account) is a GitHub guide.
+Now add the key to the account that you created a private certificates repository with: [Here](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/adding-a-new-ssh-key-to-your-github-account) is a GitHub guide. If you're using a different git provider than GitHub, then consult appropriate documentation to add your SSH key.
 
 We will use that key later, during Codemagic setup.
 
-## Setup testers
+## Setup the testers
 
 In order to set up testers, go to `https://appstoreconnect.apple.com`, log in and go to `My Apps` section. Select the app you created and go to `TestFlight` tab. In there, select `App Store Connect Users` on the left.
 
