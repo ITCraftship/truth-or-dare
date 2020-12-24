@@ -50,7 +50,7 @@ workflows:
     publishing:
       email:
         recipients:
-          - jakub.danielczyk@itcraftship.com
+          - devs@itcraftship.com
   pr:
     name: PR Tests
     max_build_duration: 60
@@ -77,4 +77,4 @@ workflows:
     publishing:
       email:
         recipients:
-          - jakub.danielczyk@itcraftship.com
+          - devs@itcraftship.com
