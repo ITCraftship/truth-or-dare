@@ -176,7 +176,7 @@ sh sh ci/build_android_qa.sh
 
 ## Setup the builds with Codemagic
 
-TODO: add the link to the tutorial for the whole codemagic setup
+Please take a look at the [detailed tutorial](tutorial/codemagic_fastlane_tutorial.md) to learn how to fork this app and set it up for release in Apple AppStore and Google Play using Fastlane and Codemagic.
 
 ## License
 
