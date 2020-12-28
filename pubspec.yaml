@@ -3,7 +3,7 @@ description: Truth or dare application.
 
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.0+8
+version: 1.0.1+0
 
 environment:
   sdk: ">=2.7.0 <3.0.0"

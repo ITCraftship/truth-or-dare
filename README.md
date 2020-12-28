@@ -13,10 +13,12 @@ A mobile Truth or Dare game for iOS and Android application built using Flutter 
 
 ### Prerequisites
 
-- [Install Ruby Version Manager](https://rvm.io/) – see below for details
-- [Install flutter](https://flutter.dev/docs/get-started/install)
+- [Install Ruby Version Manager](https://rvm.io/) – not required, but recommended (see below for details)
+- [Install flutter](https://flutter.dev/docs/get-started/install) and dependencies, including:
+  - Xcode
+  - Cocoapods (when you chose to use RVM, then make sure to install Cocoapods again for the current ruby environment – i.e. `Ruby 2.4.1`)
 - [Install dart](https://dart.dev/)
-  - MAC OS
+  - MAC OS (assumes you have [Homebrew](https://brew.sh/))
   ```bash
   brew tap dart-lang/dart
   brew install dart
@@ -174,7 +176,7 @@ sh sh ci/build_android_qa.sh
 
 ## Setup the builds with Codemagic
 
-TODO: add the link to the tutorial for the whole codemagic setup
+Please take a look at the [detailed tutorial](tutorial/codemagic_fastlane_tutorial.md) to learn how to fork this app and set it up for release in Apple AppStore and Google Play using Fastlane and Codemagic.
 
 ## License
 
